@@ -1,4 +1,9 @@
 # Starter pipeline
+- task: SSISBuild@1
+  inputs:
+    projectPath: 'C:\Users\v-komeshj\source\repos\Integration Services Project31\Integration Services Project31'
+    stripSensitive: true
+    outputPath: '$(Build.ArtifactStagingDirectory)'
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
