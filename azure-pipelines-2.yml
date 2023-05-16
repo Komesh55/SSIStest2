@@ -22,16 +22,6 @@ stages:
         runOnce:
           deploy:
             steps:
-            - task: SSISDeploy@1
-              displayName: SSIS Deploy
-              inputs:
-                sourcePath: '$(Pipeline.Workspace)\drop\OracleToSQL.ispac'
-                destinationType: 'ssisdb'
-                destinationServer: 'MSSQLSERVER'
-                destinationPath: '/SSISDB/MIS/OracleToSQL'
-                authType: 'win'
-                whetherOverwrite: 'yes'
-                whetherContinue: 'yes'
             - task: SSISCatalog@0
               displayName: SSIS Catalog Configuration
               inputs:
