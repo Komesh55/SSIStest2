@@ -31,7 +31,7 @@ stages:
                 destinationPath: '/SSISDB/MIS/OracleToSQL'
                 authType: 'win'
                 whetherOverwrite: 'yes'
-                whetherContinue: 'no'
+                whetherContinue: 'yes'
             - task: SSISCatalog@0
               displayName: SSIS Catalog Configuration
               inputs:
