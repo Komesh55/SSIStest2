@@ -1,0 +1,143 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+#azure-pipelines.yml
+
+trigger:
+- none
+
+pool:
+  name: 'BuildSQL'
+
+stages:
+  - stage: Build
+    displayName: Build
+
+    jobs:
+    - deployment: DeploySSIS
+      displayName: Deploy SSIS Package
+      workspace:
+        clean: all
+      environment:
+        name: VM0
+        resourceType: VirtualMachine
+        
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: SSISDeploy@1
+              displayName: SSIS Deploy
+              inputs:
+                sourcePath: '$(Pipeline.Workspace)\drop\OracleToSQL.ispac'
+                destinationType: 'ssisdb'
+                destinationServer: 'MSSQLSERVER'
+                destinationPath: '/SSISDB/MIS/OracleToSQL'
+                authType: 'win'
+                whetherOverwrite: 'yes'
+                whetherContinue: 'no'
+            - task: SSISCatalog@0
+              displayName: SSIS Catalog Configuration
+              inputs:
+                configSource: 'inline'
+                configContent: |
+                  {
+                    "folders": [
+                      {
+                        "name": "MIS",
+                        "description": "",
+                        "projects": [
+                          {
+                            "name": "OracleToSQL",
+                            "parameters": [
+                              {
+                                  "name": "ExponentHRMIS_ServerName",
+                                  "container": "OracleToSQL",
+                                  "value": "ExponentHRMIS_ServerName",
+                                  "valueType": "referenced"
+                              },
+                              {
+                                  "name": "MasterTax_ServerName",
+                                  "container": "OracleToSQL",
+                                  "value": "MasterTax_ServerName",
+                                  "valueType": "referenced"
+                              },
+                              {
+                                  "name": "MasterTax_UserName",
+                                  "container": "OracleToSQL",
+                                  "value": "MasterTax_UserName",
+                                  "valueType": "referenced"
+                              },
+                              {
+                                  "name": "MasterTax_Password",
+                                  "container": "OracleToSQL",
+                                  "value": "MasterTax_Password",
+                                  "valueType": "referenced"
+                              },
+                              {
+                                  "name": "MISMasterTax_ServerName",
+                                  "container": "OracleToSQL",
+                                  "value": "MISMasterTax_ServerName",
+                                  "valueType": "referenced"
+                              }
+                            ],
+                            "references": [
+                              {
+                                "environmentName": "$(SSISEnvironment)",
+                                "environmentFolder": "."
+                              }
+                            ]
+                          }
+                        ],
+                        "environments": [
+                          {
+                            "name": "$(SSISEnvironment)",
+                            "description": "",
+                            "variables": [
+                              {
+                                  "name": "ExponentHRMIS_ServerName",
+                                  "type": "string",
+                                  "description": "",
+                                  "value": "$(ExponentHRMIS_ServerName)",
+                                  "sensitive": false
+                              },
+                              {
+                                  "name": "MasterTax_ServerName",
+                                  "type": "string",
+                                  "description": "",
+                                  "value": "$(MasterTax_ServerName)",
+                                  "sensitive": false
+                              },
+                              {
+                                  "name": "MasterTax_UserName",
+                                  "type": "string",
+                                  "description": "",
+                                  "value": "$(MasterTax_UserName)",
+                                  "sensitive": false
+                              },
+                              {
+                                  "name": "MasterTax_Password",
+                                  "type": "string",
+                                  "description": "",
+                                  "value": "$(MasterTax_Password)",
+                                  "sensitive": true
+                              },
+                              {
+                                  "name": "MISMasterTax_ServerName",
+                                  "type": "string",
+                                  "description": "",
+                                  "value": "$(MISMasterTax_ServerName)",
+                                  "sensitive": false
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                rollBackOnError: true
+                targetServer: 'MSSQLSERVER'
+                authType: 'win'
+            
