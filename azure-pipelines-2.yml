@@ -15,7 +15,7 @@ stages:
       workspace:
         clean: all
       environment:
-        name: VM0
+        name: VM2
         resourceType: VirtualMachine
         
       strategy:
